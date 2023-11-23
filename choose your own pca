@@ -61,8 +61,10 @@ head(pca_data)
 # Merge with sample information
 
 # Assuming pca_data and sample_info are your data frames
-merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id")
+#merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id")
 
+
+######## make sure the column names you merge by are ideantical
 merged_data <- merge(pca_data, sample_info, by = "sample")
 
 head(merged_data)
