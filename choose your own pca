@@ -1,9 +1,3 @@
-
-###############################
-under provision something about merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id") is producing 0 rows
-
-
-
 library(DESeq2)
 library(tidyverse)
 library(ggfortify)
@@ -21,9 +15,9 @@ sample_info <- read.csv("C:/Users/bop21gwh/Documents/PhD work/genomics/H.m/sampl
 head(sample_info)
 
 
-dds_all <- DESeqDataSetFromMatrix(round(count_matrix_path), colData = sample_info, design = ~sample_id)
-dds_all <- estimateSizeFactors(dds_all)
-vst_all <- vst(dds_all, blind = TRUE)
+#dds_all <- DESeqDataSetFromMatrix(round(count_matrix_path), colData = sample_info, design = ~sample_id)
+#dds_all <- estimateSizeFactors(dds_all)
+#vst_all <- vst(dds_all, blind = TRUE)
 
 
 
@@ -58,7 +52,7 @@ PC3 <- pca$x[, 3]
 
 # Combine principal components with sample information
 pca_data <- data.frame(
-  Sample = colnames(assay(vst_all)),
+  sample = colnames(assay(vst_all)),
   PC1 = PC1,
   PC2 = PC2,
   PC3 = PC3
@@ -69,10 +63,14 @@ head(pca_data)
 # Assuming pca_data and sample_info are your data frames
 merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id")
 
+merged_data <- merge(pca_data, sample_info, by = "sample")
+
 head(merged_data)
 # Plot PCA using ggplot2
 ggplot(merged_data, aes(x = PC2, y = PC3, color = Tissue, shape = Species)) +
   geom_point(size = 3) +
   labs(title = "PCA Plot", x = "PC2", y = "PC3") +
   theme_minimal()
+
+
 
