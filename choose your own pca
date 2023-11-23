@@ -1,0 +1,78 @@
+
+###############################
+under provision something about merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id") is producing 0 rows
+
+
+
+library(DESeq2)
+library(tidyverse)
+library(ggfortify)
+library(ggtext)
+library(ggpubr)
+library(dplyr)
+
+
+#load raw data ----
+count_matrix_path <- read.table("C:/Users/bop21gwh/bioinformatics/salmon.gene.counts.matrix")
+head(count_matrix_path)
+sample_info <- read.csv("C:/Users/bop21gwh/Documents/PhD work/genomics/H.m/sample_info_with_sample_id.csv", row.names = NULL)
+# extract colnames to change count matrix colnames
+# new
+head(sample_info)
+
+
+dds_all <- DESeqDataSetFromMatrix(round(count_matrix_path), colData = sample_info, design = ~sample_id)
+dds_all <- estimateSizeFactors(dds_all)
+vst_all <- vst(dds_all, blind = TRUE)
+
+
+
+##################################################
+dds_all <- DESeqDataSetFromMatrix(
+  countData = round(count_matrix_path),
+  colData = sample_info,
+  design = ~sample_id
+)
+
+# Estimate size factors
+dds_all <- estimateSizeFactors(dds_all)
+
+# Perform VST transformation
+vst_all <- vst(dds_all, blind = TRUE)
+head(vst_all)
+
+# Calculate PCA
+rv <- rowVars(assay(vst_all))
+head(rv)
+ntop <- 500
+select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, length(rv)))]
+
+# Perform PCA on the selected genes
+pca <- prcomp(t(assay(vst_all)[select, ]))
+head(pca)
+
+# Access the principal components
+PC1 <- pca$x[, 1]
+PC2 <- pca$x[, 2]
+PC3 <- pca$x[, 3]
+
+# Combine principal components with sample information
+pca_data <- data.frame(
+  Sample = colnames(assay(vst_all)),
+  PC1 = PC1,
+  PC2 = PC2,
+  PC3 = PC3
+)
+head(pca_data)
+# Merge with sample information
+
+# Assuming pca_data and sample_info are your data frames
+merged_data <- merge(pca_data, sample_info, by.x = "Sample", by.y = "sample_id")
+
+head(merged_data)
+# Plot PCA using ggplot2
+ggplot(merged_data, aes(x = PC2, y = PC3, color = Tissue, shape = Species)) +
+  geom_point(size = 3) +
+  labs(title = "PCA Plot", x = "PC2", y = "PC3") +
+  theme_minimal()
+
