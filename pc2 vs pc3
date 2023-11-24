@@ -1,0 +1,43 @@
+########### simple code for pc2 vs pc3 
+
+library(DESeq2)
+library(tidyverse)
+library(ggfortify)
+library(ggtext)
+library(ggpubr)
+library(dplyr)
+
+
+#load raw data ----
+count_matrix_path <- read.table("C:/Users/bop21gwh/bioinformatics/salmon.gene.counts.matrix")
+head(count_matrix_path)
+sample_info <- read.csv("C:/Users/bop21gwh/Documents/PhD work/genomics/H.m/sample_info_with_sample_id.csv", row.names = NULL)
+# extract colnames to change count matrix colnames
+# new
+head(sample_info)
+
+
+dds_all <- DESeqDataSetFromMatrix(round(count_matrix_path), colData = sample_info, design = ~sample_id)
+dds_all <- estimateSizeFactors(dds_all)
+vst_all <- vst(dds_all, blind = TRUE)
+
+# Check if the object exists
+exists("dds_all")
+
+
+pca_data <- plotPCA(vst_all, intgroup = c('Tissue', 'Species', 'sample_id'), returnData = TRUE)
+print(pca_data)
+
+pca_plot <- ggplot(pca_data, aes(x = PC2, y = PC3, color = Tissue, shape = Species)) +
+  geom_point(size = 3) +
+  theme_bw()
+print(pca_plot)
+######## check the pca head(pca_data) to see what the pca column titles are
+
+##### try ggbiplot
+
+
+pca_plot1 <- pca_plot + geom_text(aes(label = sample_id), hjust = 0, vjust = 0, nudge_x = 0.1, nudge_y = 0.1)
+
+print(pca_plot1)
+
